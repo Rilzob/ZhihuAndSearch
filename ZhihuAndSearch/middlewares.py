@@ -7,6 +7,8 @@
 
 from scrapy import signals
 from fake_useragent import UserAgent
+from scrapy.http import HtmlResponse
+import time
 
 
 class ZhihuandsearchSpiderMiddleware(object):
@@ -73,3 +75,13 @@ class RandomUserAgentMiddleware(object):
             return getattr(self.ua, self.ua_type)
 
         request.headers.setdefault('User-Agent', get_ua())
+
+
+class JSPageMiddleware(object):
+    # 通过chrome请求动态网页
+    def process_request(self, request, spider):
+        spider.browser.get(request.url)
+        time.sleep(3)
+        print("访问:{0}".format(request.url))
+
+        return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_souce, encoding="utf-8")

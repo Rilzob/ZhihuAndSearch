@@ -1,33 +1,34 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import time
+from selenium import webdriver
+from scrapy.xlib.pydispatch import dispatcher
+from scrapy import signals
 
 
 class ZhihuSelSpider(scrapy.Spider):
     name = 'zhihu_sel'
     allowed_domains = ['www.zhihu.com']
-    start_urls = ['https://www.zhihu.com/']
+    start_urls = ['https://www.zhihu.com/topic/19552832/top-answers']
+
+    custom_settings = {
+        "COOKIE_ENABLED": True,
+        "DOWNLOAD_DELAY": 1.5
+    }
+
+    def __init__(self):
+        self.browser = webdriver.Chrome(
+            executable_path="/Users/rilzob/PycharmProjects/ZhihuAndSearch/chromedriver")
+        super(ZhihuSelSpider, self).__init__()
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
+
+    def spider_closed(self, spider):
+        # 当爬虫退出的时候关闭chrome
+        print("spider closed")
+        spider.browser.quit()
 
     def parse(self, response):
+        print("进入parse函数")
         pass
 
     def start_requests(self):
-        from selenium import webdriver
-        browser = webdriver.Chrome(executable_path="/Users/rilzob/PycharmProjects/ZhihuAndSearch/chromedriver")
-        browser.get("https://www.zhihu.com/signin")
-        browser.find_element_by_css_selector(".SignFlow-accountInput.Input-wrapper input").send_keys("15724428236")
-        browser.find_element_by_css_selector(".SignFlow-password input").send_keys("watermirrorsir")
-        time.sleep(10)
-        browser.find_element_by_css_selector(".Button.SignFlow-submitButton").click()
-        Cookies = browser.get_cookies()
-        print(Cookies)
-        cookie_dict = {}
-        import pickle
-        for cookie in Cookies:
-            # 写入文件
-            f = open("/Users/rilzob/PycharmProjects/ZhihuAndSearch/cookies/zhihu" + cookie['name'] + '.zhihu')
-            pickle.dump(cookie, f)
-            cookie_dict[cookie['name']] = cookie['value']
-        browser.close()
-        return [scrapy.Request(url=self.start_urls[0], dont_filter=True, cookies=cookie_dict)]
-
+        return [scrapy.Request('https://www.zhihu.com/topic/19552832/top-answers', dont_filter=True,)]
