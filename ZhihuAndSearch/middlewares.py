@@ -74,6 +74,7 @@ class RandomUserAgentMiddleware(object):
         def get_ua():
             return getattr(self.ua, self.ua_type)
 
+        random_useragent = get_ua()
         request.headers.setdefault('User-Agent', get_ua())
 
 
@@ -81,7 +82,12 @@ class JSPageMiddleware(object):
     # 通过chrome请求动态网页
     def process_request(self, request, spider):
         spider.browser.get(request.url)
-        time.sleep(3)
+        time.sleep(1)
         print("访问:{0}".format(request.url))
-
-        return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_souce, encoding="utf-8")
+        if request.url == 'https://www.zhihu.com/topic/19552832/top-answers':
+            for i in range(2):
+                spider.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);"
+                                            "var lenOfPage=document.body.scrollHeight;"
+                                            "return lenOfPage")  # 执行下拉操作刷新页面
+                time.sleep(3)
+        return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source, encoding="utf-8")

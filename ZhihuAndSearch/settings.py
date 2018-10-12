@@ -53,8 +53,8 @@ ROBOTSTXT_OBEY = False
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'ZhihuAndSearch.middlewares.RandomUserAgentMiddleware': 543,
-    'ZhihuAndSearch.middlewares.JSPageMiddleware': 1
+    # 'ZhihuAndSearch.middlewares.RandomUserAgentMiddleware': 1,
+    'ZhihuAndSearch.middlewares.JSPageMiddleware': 2
  }
 
 # Enable or disable extensions
