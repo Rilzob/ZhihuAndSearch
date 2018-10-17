@@ -66,7 +66,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'ZhihuAndSearch.pipelines.ZhihuandsearchPipeline': 300,
+#    'ZhihuAndSearch.pipelines.ZhihuAndSearchPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -91,3 +91,6 @@ DOWNLOADER_MIDDLEWARES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 RANDOM_UA_TYPE = "random"
+
+DROPDOWN_NUM = 1
+# 自动下拉次数

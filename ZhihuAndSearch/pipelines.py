@@ -6,6 +6,15 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-class ZhihuandsearchPipeline(object):
+class ZhihuAndSearchPipeline(object):
     def process_item(self, item, spider):
+        return item
+
+
+class ElasticsearchPipeline(object):
+    # 将数据写入到es中
+    def process_item(self, item, spider):
+        # 将item转换为es的数据
+        item.save_to_es()
+
         return item
