@@ -27,13 +27,13 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -47,14 +47,15 @@ ROBOTSTXT_OBEY = False
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'ZhihuAndSearch.middlewares.ZhihuandsearchSpiderMiddleware': 543,
+#    'ZhihuAndSearch.middlewares.ZhihuAndSearchSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    # 'ZhihuAndSearch.middlewares.RandomUserAgentMiddleware': 1,
-    'ZhihuAndSearch.middlewares.JSPageMiddleware': 2
+    'ZhihuAndSearch.middlewares.RandomUserAgentMiddleware': 2,
+    'ZhihuAndSearch.middlewares.JSPageMiddleware': 1,
+    'scrapy.dupefilters.RFPDupeFilter': 3
  }
 
 # Enable or disable extensions
@@ -65,9 +66,13 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'ZhihuAndSearch.pipelines.ZhihuAndSearchPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    # 'ZhihuAndSearch.pipelines.ZhihuAndSearchPipeline': 300,
+    'ZhihuAndSearch.pipelines.MySQLTwistedPipeline': 3,
+    'ZhihuAndSearch.pipelines.ElasticsearchPipeline': 2,  # 这里必须得把
+    # 'ZhihuAndSearch.pipelines.JsonWithEncodingPipeline':3
+    'ZhihuAndSearch.pipelines.JsonExporterPipeline': 1
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -94,3 +99,8 @@ RANDOM_UA_TYPE = "random"
 
 DROPDOWN_NUM = 1
 # 自动下拉次数
+
+MYSQL_HOST = '127.0.0.1'
+MYSQL_DBNAME = 'ZhihuAndSearch'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'watermirrorsir'

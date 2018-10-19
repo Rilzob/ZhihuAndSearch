@@ -11,7 +11,7 @@ from scrapy.http import HtmlResponse
 import time
 
 
-class ZhihuandsearchSpiderMiddleware(object):
+class ZhihuAndSearchSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -63,14 +63,14 @@ class RandomUserAgentMiddleware(object):
     # 随机更换User-Agent
     def __init__(self, crawler):
         super(RandomUserAgentMiddleware, self).__init__()
-        self.ua = UserAgent()
+        self.ua = UserAgent(verify_ssl=False)
         self.ua_type = crawler.settings.get("RANDOM_UA_TYPE", "random")
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(crawler)
 
-    def process_request(self, request):
+    def process_request(self, request, spider):
         def get_ua():
             return getattr(self.ua, self.ua_type)
 
@@ -92,15 +92,15 @@ class JSPageMiddleware(object):
         time.sleep(1)
         print("访问:{0}".format(request.url))
         if request.url.startswith("https://www.zhihu.com/"):
-            try:
-                spider.browser.find_element_by_css_selector("div.QuestionHeader-detail button.QuestionRichText-more")
-                # 将问题描述展开，当然问题描述可能没有或者不需要展开
-            except:
-                print("不存在显示全部按钮")
-            finally:
-                for i in range(self.dropdown_num):  # 下拉次数
-                    spider.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);"
-                                                "var lenOfPage=document.body.scrollHeight;"
-                                                "return lenOfPage")  # 执行下拉操作刷新页面
-                    time.sleep(3)
+            if request.url.startswith("https://www.zhihu.com/question/"):
+                try:
+                    spider.browser.find_element_by_css_selector("div.QuestionHeader-detail button.QuestionRichText-more").click()
+                    # 将问题描述展开，当然问题描述可能没有或者不需要展开
+                except:
+                    print("不存在显示全部按钮")
+            for i in range(self.dropdown_num):  # 下拉次数
+                spider.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);"
+                                            "var lenOfPage=document.body.scrollHeight;"
+                                            "return lenOfPage")  # 执行下拉操作刷新页面
+                time.sleep(3)
         return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source, encoding="utf-8", request=request)
