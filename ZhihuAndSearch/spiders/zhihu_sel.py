@@ -3,6 +3,7 @@ import scrapy
 from selenium import webdriver
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
+# from pyvirtualdisplay import Display
 
 from ZhihuAndSearch.items import ZhihuQuestionItem, ZhihuAnswerItem, ZhihuZhuanlanItem, ZhihuItemLoader
 from ZhihuAndSearch.utils.common import get_md5
@@ -22,6 +23,8 @@ class ZhihuSelSpider(scrapy.Spider):
     # # 由于无法翻墙所以无法访问fake_useragent的服务器，只能暂时使用自己的User-Agent
 
     def __init__(self):
+        # display = Display(visible=0, size=(800, 600))  # chrome无界面运行
+        # display.start()
         self.browser = webdriver.Chrome(
             executable_path="/Users/rilzob/PycharmProjects/ZhihuAndSearch/chromedriver")
         super(ZhihuSelSpider, self).__init__()
@@ -119,8 +122,7 @@ class ZhihuSelSpider(scrapy.Spider):
         yield answer_item
 
     def start_requests(self):
-        # return [scrapy.Request('https://www.zhihu.com/topic/19552832/top-answers', dont_filter=True,)]
         # return [scrapy.Request('https://www.zhihu.com/topic/19552832/top-answers',
         #                        dont_filter=True, callback=self.parse)]
         return [scrapy.Request('https://www.zhihu.com/topic/19552832/top-answers', headers=self.headers,
-                             dont_filter=True, callback=self.parse)]
+                                dont_filter=True, callback=self.parse)]

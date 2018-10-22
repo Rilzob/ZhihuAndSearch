@@ -68,10 +68,10 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'ZhihuAndSearch.pipelines.ZhihuAndSearchPipeline': 300,
-    'ZhihuAndSearch.pipelines.MySQLTwistedPipeline': 3,
+    #'ZhihuAndSearch.pipelines.MySQLTwistedPipeline': 3,
     'ZhihuAndSearch.pipelines.ElasticsearchPipeline': 2,  # 这里必须得把
     # 'ZhihuAndSearch.pipelines.JsonWithEncodingPipeline':3
-    'ZhihuAndSearch.pipelines.JsonExporterPipeline': 1
+    # 'ZhihuAndSearch.pipelines.JsonExporterPipeline': 1
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

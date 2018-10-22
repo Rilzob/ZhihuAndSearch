@@ -6,12 +6,36 @@
 # http://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-from scrapy.loader.processors import MapCompose, TakeFirst, Join, Identity, Compose
+from scrapy.loader.processors import MapCompose, TakeFirst, Join, Compose
 from scrapy.loader import ItemLoader
 from w3lib.html import remove_tags
+from elasticsearch_dsl.connections import connections
 
 from ZhihuAndSearch.models.es_type import ZhihuQuestionType, ZhihuAnswerType, ZhihuZhuanlanType
 from ZhihuAndSearch.utils.common import extract_num, return_followers_num, return_visitors_num
+
+question_es = connections.create_connection(ZhihuQuestionType._doc_type.using)
+answer_es = connections.create_connection(ZhihuQuestionType._doc_type.using)
+zhuanlan_es = connections.create_connection(ZhihuZhuanlanType._doc_type.using)
+
+
+def get_suggest(es, index, info_tuple):
+    # 根据字符串生成搜索建议数组
+    used_words = set()
+    suggests = []
+    for text, weight in info_tuple:
+        if text:
+            # 调用es的analyze接口分析字符串
+            words = es.indices.analyze(index=index, analyzer='ik_max_word', params={'filter': ['lowercase']}, body=text)
+            analyzed_words = set([r['token'] for r in words['tokens'] if len(r['token']) > 1])
+            new_words = analyzed_words - used_words
+        else:
+            new_words = set()
+
+        if new_words:
+            suggests.append(({'input': list(new_words), 'weight': weight}))
+
+    return suggests
 
 
 class ZhihuAndSearchItem(scrapy.Item):
@@ -65,6 +89,8 @@ class ZhihuQuestionItem(scrapy.Item):
         question.answer_id_list = self['answer_id_list']
         question.answer_url_list = self['answer_url_list']
 
+        question.suggest = get_suggest(question_es, ZhihuQuestionType._doc_type.index, ((question.question_title, 10), (question.topics, 7)))
+
         question.save()
 
         return
@@ -107,6 +133,8 @@ class ZhihuAnswerItem(scrapy.Item):
         answer.praise_num = self['praise_num']
         answer.answer_url = self['answer_url']
         answer.answer_object_id = self['answer_object_id']
+
+        answer.suggest = get_suggest(answer_es, ZhihuAnswerType._doc_type.index, ((answer.answer_article, 5),))
 
         answer.save()
 
@@ -153,6 +181,8 @@ class ZhihuZhuanlanItem(scrapy.Item):
         zhuanlan.comments_num = self['comments_num']
         zhuanlan.zhuanlan_url = self['zhuanlan_url']
         zhuanlan.zhuanlan_object_id = self['zhuanlan_object_id']
+
+        zhuanlan.suggest = get_suggest(zhuanlan_es, ZhihuZhuanlanType._doc_type.index, ((zhuanlan.zhuanlan_article, 5), ))
 
         zhuanlan.save()
 
