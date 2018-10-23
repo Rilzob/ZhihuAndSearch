@@ -9,7 +9,6 @@ from ZhihuAndSearch.items import ZhihuQuestionItem, ZhihuAnswerItem, ZhihuZhuanl
 from ZhihuAndSearch.utils.common import get_md5
 
 import re
-import time
 
 
 class ZhihuSelSpider(scrapy.Spider):
@@ -25,6 +24,10 @@ class ZhihuSelSpider(scrapy.Spider):
     def __init__(self):
         # display = Display(visible=0, size=(800, 600))  # chrome无界面运行
         # display.start()
+
+        self.question_url = []
+        self.zhuanlan_url = []
+
         self.browser = webdriver.Chrome(
             executable_path="/Users/rilzob/PycharmProjects/ZhihuAndSearch/chromedriver")
         super(ZhihuSelSpider, self).__init__()
@@ -33,18 +36,18 @@ class ZhihuSelSpider(scrapy.Spider):
     def spider_closed(self, spider):
         # 当爬虫退出的时候关闭chrome
         print("spider closed")
+        # print("question_url:", self.question_url)
+        # print("zhuanlan_url:", self.zhuanlan_url)
         spider.browser.quit()
 
     def parse(self, response):
         print("进入parse函数")
         all_urls = response.css("div.ContentItem h2 a::attr(href)").extract()
         # print(all_urls)
-        question_url = []
-        zhuanlan_url = []
         for url in all_urls:
             if url.startswith(r'//'):
                 url = 'https://' + url.strip(r'//')
-                zhuanlan_url.append(url)
+                self.zhuanlan_url.append(url)
                 yield scrapy.Request(url, headers=self.headers, dont_filter=True, callback=self.parse_zhuanlan)
                 # yield scrapy.Request(url, dont_filter=True, callback=self.parse_zhuanlan)
             else:
@@ -52,10 +55,13 @@ class ZhihuSelSpider(scrapy.Spider):
                 question_id = url_match.group(2)
                 # print(question_id)
                 url = 'https://www.zhihu.com/question/' + question_id
-                question_url.append(url)
-                yield scrapy.Request(url, headers=self.headers, meta={"question_id": question_id}, dont_filter=True,callback=self.parse_question)
-                # yield scrapy.Request(url, meta={"question_id": question_id}, dont_filter=True, callback=self.parse_question)
-                time.sleep(2)
+                if url not in self.question_url:
+                    self.question_url.append(url)
+                    yield scrapy.Request(url, headers=self.headers, meta={"question_id": question_id}, dont_filter=True,
+                                         callback=self.parse_question)
+                    # yield scrapy.Request(url, meta={"question_id": question_id}, dont_filter=True, callback=self.parse_question)
+                else:
+                    continue
         # print('zhuanlan_url:', len(zhuanlan_url))
         # print('zhuanlan_url', zhuanlan_url)
         # print('question_url: %d' % len(question_url))
@@ -104,7 +110,6 @@ class ZhihuSelSpider(scrapy.Spider):
         for answer_url in answer_url_list:
             yield scrapy.Request(answer_url, headers=self.headers, dont_filter=True, callback=self.parse_answer)
             # yield scrapy.Request(answer_url, dont_filter=True, callback=self.parse_answer)
-            time.sleep(1)
 
     def parse_answer(self, response):
         # 处理answer页面，从页面中提取出具体的answer item

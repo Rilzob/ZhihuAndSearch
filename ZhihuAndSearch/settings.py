@@ -55,7 +55,7 @@ COOKIES_ENABLED = True
 DOWNLOADER_MIDDLEWARES = {
     'ZhihuAndSearch.middlewares.RandomUserAgentMiddleware': 2,
     'ZhihuAndSearch.middlewares.JSPageMiddleware': 1,
-    'scrapy.dupefilters.RFPDupeFilter': 3
+    # 'scrapy.dupefilters.RFPDupeFilter': 3  # 当dont_filter参数设为True时，该函数不起作用
  }
 
 # Enable or disable extensions
@@ -68,8 +68,8 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'ZhihuAndSearch.pipelines.ZhihuAndSearchPipeline': 300,
-    #'ZhihuAndSearch.pipelines.MySQLTwistedPipeline': 3,
-    'ZhihuAndSearch.pipelines.ElasticsearchPipeline': 2,  # 这里必须得把
+    'ZhihuAndSearch.pipelines.MySQLTwistedPipeline': 3,
+    'ZhihuAndSearch.pipelines.ElasticsearchPipeline': 2,
     # 'ZhihuAndSearch.pipelines.JsonWithEncodingPipeline':3
     # 'ZhihuAndSearch.pipelines.JsonExporterPipeline': 1
 }
